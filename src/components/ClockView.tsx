@@ -6,17 +6,23 @@ const ClockView = () => {
 
 	const [breakLength, setBreakLength] = useState(5)
 	const [sessionLength, setSessionLength] = useState(25)
-	const [isPlay, setIsPlay] = useState(false)
 	const [timeLeft, setTimeLeft] = useState("25:00")
+
+	const [count, setCount] = useState(0)
+	const [intervalID, setIntervalID] = useState(0)
 
 	const minMinutes = 0;
 	const maxMinutes = 60;
 
 	// logic for reset
 	const reset = () => {
+		clearInterval(intervalID);
+		setIntervalID(0)
+
 		setBreakLength(5)
 		setSessionLength(25)
 		setTimeLeft("25:00")
+		setCount(0)
 	}
 
 	const breakIncrement = () => {
@@ -45,35 +51,43 @@ const ClockView = () => {
 
 	const toggleStartStop = () => {
 
-		const text = 'wow';
+		if(intervalID){
+			clearInterval(intervalID);
+			setIntervalID(0)
+			// reset()
+			return
+		}
+		// let timer: number = 5000;
+		let timer: number = sessionLength * 60 * 1000;
 
-		const test = setInterval(()=>{
+		let minutes, seconds = 0
 
-			let p =+ text
-		
-			console.log(p)
+		const newIntervalId:any = setInterval(()=>{
+
+			minutes = Math.floor((timer % (1000 * 60 * 60)) / (1000 * 60));
+			seconds = Math.floor((timer % (1000 * 60)) / 1000);
 			
+			let minStr:any = minutes
+			let secStr:any = seconds
+
+			if(minutes < 10){
+				minStr = `0${minutes}`
+			}
+
+			if(seconds < 10){
+				secStr = `0${seconds}`
+			}
+
+			setTimeLeft(`${minStr}:${secStr}`)
+
+			timer -= 1000
+			if (timer < 0) {
+				clearInterval(newIntervalId)
+			}
 		}, 1000)
 
-		// let timer: number = sessionLength * 60 * 1000;
-		// const x = setInterval(()=>{
-
-		// 	console.log(`timer dudes: ${timer}`)
-
-		// 	// console.log(m)
-		// 	let minutes = Math.floor((timer % (1000 * 60 * 60)) / (1000 * 60));
-		// 	let seconds = Math.floor((timer % (1000 * 60)) / 1000);
-			
-		// 	console.log(`${minutes}:${seconds}`)
-
-		// 	timer =- 1000;
-
-		// 	if(timer < 0){
-		// 		clearInterval(x)
-		// 	}
-		// }, 1000)		
+		setIntervalID(newIntervalId)
 	}
-
 
 	useEffect(() => {
 	  console.log(sessionLength)
@@ -105,6 +119,7 @@ const ClockView = () => {
 			<div>
 				<button id="start_stop" onClick={() => toggleStartStop()}>Start / Stop</button>
 				<button id="reset" onClick={() => reset()}>Reset</button>
+				<p className='text-slate-600'>{count}</p>
 			</div>
 		</div>
 	)
